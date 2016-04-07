@@ -1,12 +1,10 @@
 #!/bin/bash
 # Raspberry Pi Wireless Hotspot Installation Script
-
 clear
 
 echo "======================================================="
 echo "======== Setting up Raspberry Pi WiFi hotspot ========="
 echo "======================================================="
-
 read -r -p "This script will make changes to your system which may break some applications and may require you to reimage your SD card. Are you sure that you wish to continue? [y/N] " confirm
 
 if [[ $confirm =~ ^([yY][eE][sS]|[yY])$ ]]
@@ -19,8 +17,10 @@ then
     echo "Installing dependencies"
     
     apt-get -y -qq install hostapd udhcpd
-    
-        
+    $editor=vi
+    read -r -p "What is your editor (Default=vi) :" editor
+
+
     ####################################################################
     #	check for and back up existing config files
     #################################################################### 
@@ -98,6 +98,11 @@ then
     fi
     
     echo "Configuring interfaces"
+    read -r -p "Do you want to set up you interface? (default : eth0 is dhcp) [y/N]:" interfaceconfig
+    if [[ $interfaceconfig =~ ^([yY][eE][sS]|[yY])$ ]]
+    then
+        $editor ./config-files/interfaces 
+    fi
     cp ./config-files/interfaces /etc/network
     
     echo "Configuring hostapd"
@@ -115,7 +120,7 @@ then
     then
         mv /usr/sbin/hostapd /usr/sbin/hostapd.ORIG
         echo "Adafruit hostapd binary copied"
-        cp ./hostapd-adafruit /usr/sbin/hostapd
+        cp ./hostapd /usr/sbin/hostapd
         cp ./config-files/hostapd-adafruit.conf /etc/hostapd/hostapd.conf
         chmod 755 /usr/sbin/hostapd
     fi
